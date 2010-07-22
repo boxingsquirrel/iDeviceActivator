@@ -57,16 +57,22 @@ static void deactivate(GtkWidget *widget, gpointer data)
 {
 	gtk_main_iteration();
 
+	printf("Deactivating the device...");
+	gtk_label_set_text(pL, "Deactivating the device...");
+	gtk_main_iteration();
+
 	lockdownd_error_t e=lockdownd_deactivate(client);
 
 	if (e==LOCKDOWN_E_SUCCESS)
 	{
+		printf("SUCCESS\n");
 		gtk_label_set_text(pL, "Deactivated the device sucessfully");
 		gtk_main_iteration();
 		return 0;
 	}
 
 	else {
+		printf("ERROR\n");
 		gtk_label_set_text(pL, "Could not deactivate the device");
 		gtk_main_iteration();
 		return -1;
@@ -77,10 +83,8 @@ static void destroy(GtkWidget *widget, gpointer data)
 {
 	if (widget==window)
 	{
+		int e=finish();
 		gtk_main_quit();
-	}
-
-	else {
 	}
 }
 
@@ -171,13 +175,13 @@ int fill_in_info()
 
 int read_in_plists()
 {
-	r_file("/usr/local/share/iDeviceActivator/data/latest.plist");
+	//r_file("/usr/local/share/iDeviceActivator/data/latest.plist");
 	strcpy(latest_plist, data);
 
 	r_file("/usr/local/share/iDeviceActivator/data/img.plist");
 	strcpy(img_plist, data);
 
-	r_file("/usr/local/share/iDeviceActivator/data/current.plist");
+	//r_file("/usr/local/share/iDeviceActivator/data/current.plist");
 	strcpy(current_plist, data);
 
 	return 0;

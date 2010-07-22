@@ -20,7 +20,6 @@ int set_up()
 
 int setUpDevice()
 {
-	char uuid[41];
 	int count = 0;
 	char **list = NULL;
 	idevice_error_t device_error = 0;
@@ -31,9 +30,6 @@ int setUpDevice()
 		fprintf(stderr, "ERROR: Cannot retrieve device list\n");
 		return -1;
 	}
-
-	//memset(uuid, '\0', 41);
-	//memcpy(uuid, list[0], 40);
 
 	printf("INFO: Opening device\n");
 	device_error = idevice_new(&device, list[0]);
@@ -51,8 +47,6 @@ int setUpDevice()
 	idevice_device_list_free(list);
 
 	return 0;
-
-	//start_sync();
 }
 
 int start_lockdownd()
@@ -95,5 +89,16 @@ int recovery_enter()
 {
 	printf("INFO: Entering recovery mode\n");
 	lockdownd_enter_recovery(client);
+	return 0;
+}
+
+int finish()
+{
+	printf("INFO: Freeing lockdownd client\n");
+	lockdownd_client_free(client);
+
+	printf("INFO: Closing out the device connection\n");
+	idevice_free(device);
+
 	return 0;
 }

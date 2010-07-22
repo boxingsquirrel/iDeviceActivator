@@ -29,10 +29,8 @@
 #include <gtk/gtk.h>
 
 #include "activate.h"
+#include "device.h"
 #include "ui.h"
-
-idevice_t idevice = NULL;
-lockdownd_client_t lclient = NULL;
 
 typedef struct {
 	int length;
@@ -72,7 +70,7 @@ int activate_fetch_record(lockdownd_client_t aclient, plist_t* record) {
 
 	char* device_class = NULL;
 	plist_t device_class_node = NULL;
-	lockdownd_get_value(lclient, NULL, "DeviceClass", &device_class_node);
+	lockdownd_get_value(client, NULL, "DeviceClass", &device_class_node);
 	if (!device_class_node || plist_get_node_type(device_class_node) != PLIST_STRING) {
 		fprintf(stderr, "Unable to get DeviceClass from lockdownd\n");
 		return -1;
@@ -81,7 +79,7 @@ int activate_fetch_record(lockdownd_client_t aclient, plist_t* record) {
 	plist_free(device_class_node);
 
 	if (!strcmp(device_class, "iPhone")) {
-		lockdownd_get_value(lclient, NULL, "IntegratedCircuitCardIdentity", &iccid_node);
+		lockdownd_get_value(client, NULL, "IntegratedCircuitCardIdentity", &iccid_node);
 		if (!iccid_node || plist_get_node_type(iccid_node) != PLIST_STRING) {
 			fprintf(stderr, "Unable to get ICCID from lockdownd\n");
 			return -1;
@@ -89,7 +87,7 @@ int activate_fetch_record(lockdownd_client_t aclient, plist_t* record) {
 		plist_get_string_val(iccid_node, &iccid);
 		plist_free(iccid_node);
 
-		lockdownd_get_value(lclient, NULL, "InternationalMobileEquipmentIdentity", &imei_node);
+		lockdownd_get_value(client, NULL, "InternationalMobileEquipmentIdentity", &imei_node);
 		if (!imei_node || plist_get_node_type(imei_node) != PLIST_STRING) {
 			fprintf(stderr, "Unable to get IMEI from lockdownd\n");
 			return -1;
@@ -97,7 +95,7 @@ int activate_fetch_record(lockdownd_client_t aclient, plist_t* record) {
 		plist_get_string_val(imei_node, &imei);
 		plist_free(imei_node);
 
-		lockdownd_get_value(lclient, NULL, "InternationalMobileSubscriberIdentity", &imsi_node);
+		lockdownd_get_value(client, NULL, "InternationalMobileSubscriberIdentity", &imsi_node);
 		if (!imsi_node || plist_get_node_type(imsi_node) != PLIST_STRING) {
 			fprintf(stderr, "Unable to get IMSI from lockdownd\n");
 			return -1;
@@ -106,7 +104,7 @@ int activate_fetch_record(lockdownd_client_t aclient, plist_t* record) {
 		plist_free(imsi_node);
 	}
 
-	lockdownd_get_value(lclient, NULL, "SerialNumber", &serial_number_node);
+	lockdownd_get_value(client, NULL, "SerialNumber", &serial_number_node);
 	if (!serial_number_node || plist_get_node_type(serial_number_node) != PLIST_STRING) {
 		fprintf(stderr, "Unable to get SerialNumber from lockdownd\n");
 		return -1;
@@ -114,7 +112,7 @@ int activate_fetch_record(lockdownd_client_t aclient, plist_t* record) {
 	plist_get_string_val(serial_number_node, &serial_number);
 	plist_free(serial_number_node);
 
-	lockdownd_get_value(lclient, NULL, "ActivationInfo", &activation_info_node);
+	lockdownd_get_value(client, NULL, "ActivationInfo", &activation_info_node);
 	int type = plist_get_node_type(activation_info_node);
 	if (!activation_info_node || plist_get_node_type(activation_info_node) != PLIST_DICT) {
 		fprintf(stderr, "Unable to get ActivationInfo from lockdownd\n");
@@ -320,49 +318,26 @@ static int plist_read_from_filename(plist_t *plist, const char *filename) {
 
 int activate_thread()
 {
-	int i = 0;
-	int opt = 0;
-	int debug = 0;
-	char* uuid = NULL;
-	char* file = NULL;
-	int deactivate = 0;
 	idevice_error_t device_error = IDEVICE_E_UNKNOWN_ERROR;
 	lockdownd_error_t client_error = LOCKDOWN_E_UNKNOWN_ERROR;
-
-	device_error = idevice_new(&idevice, uuid);
-	if (device_error != IDEVICE_E_SUCCESS) {
-		printf("No device found, is it plugged in?\n");
-		gtk_label_set_text(pL, "No device found, check the connection...");
-		gtk_main_iteration();
-		return -1;
-	}
-
-	client_error = lockdownd_client_new_with_handshake(idevice, &lclient, "ideviceactivate");
-	if (client_error != LOCKDOWN_E_SUCCESS) {
-		printf("Unable to connect to lockdownd\n");
-		gtk_label_set_text(pL, "Could not connect to lockdownd");
-		gtk_main_iteration();
-		idevice_free(idevice);
-		return -1;
-	}
 
 	plist_t activation_record = NULL;
 	printf("Creating activation request\n");
 	gtk_label_set_text(pL, "Creating the activation request...");
 	gtk_main_iteration();
-	if(activate_fetch_record(lclient, &activation_record) < 0) {
+	if(activate_fetch_record(client, &activation_record) < 0) {
 		fprintf(stderr, "Unable to fetch activation request\n");
 		gtk_label_set_text(pL, "Unable to fetch actiovation request");
 		gtk_main_iteration();
-		lockdownd_client_free(lclient);
-		idevice_free(idevice);
+		lockdownd_client_free(client);
+		idevice_free(device);
 		return -1;
 	}
 
 	printf("Activating device... ");
 	gtk_label_set_text(pL, "Activating the device...");
 	gtk_main_iteration();
-	client_error = lockdownd_activate(lclient, activation_record);
+	client_error = lockdownd_activate(client, activation_record);
 	if (client_error == LOCKDOWN_E_SUCCESS) {
 		printf("SUCCESS\n");
 		gtk_label_set_text(pL, "Activated the device sucessfully");
@@ -373,10 +348,7 @@ int activate_thread()
 		gtk_main_iteration();
 	}
 
-	//plist_free(activation_record);
+	plist_free(activation_record);
 	activation_record = NULL;
-
-	lockdownd_client_free(lclient);
-	idevice_free(idevice);
 	return 0;
 }

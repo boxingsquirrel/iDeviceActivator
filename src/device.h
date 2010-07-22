@@ -10,3 +10,4 @@ extern int setUpDevice();
 extern int start_lockdownd();
 extern int start_service(const char *service);
 extern int recovery_enter();
+extern int finish();
