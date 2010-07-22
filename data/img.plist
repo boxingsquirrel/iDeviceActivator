@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>iPad1,1</key>
+	<string>/usr/local/share/iDeviceUpdater/res/iPad.png</string>
+	<key>iPhone1,1</key>
+	<string>/usr/local/share/iDeviceUpdater/res/iPhone.png</string>
+	<key>iPhone1,2</key>
+	<string>/usr/local/share/iDeviceUpdater/res/iPhone.png</string>
+	<key>iPhone2,1</key>
+	<string>/usr/local/share/iDeviceUpdater/res/iPhone.png</string>
+	<key>iPhone3,1</key>
+	<string>/usr/local/share/iDeviceUpdater/res/iPhone.png</string>
+	<key>iPod1,1</key>
+	<string>/usr/local/share/iDeviceUpdater/res/iPod.png</string>
+	<key>iPod2,1</key>
+	<string>/usr/local/share/iDeviceUpdater/res/iPod.png</string>
+	<key>iPod3,1</key>
+	<string>/usr/local/share/iDeviceUpdater/res/iPod.png</string>
+</dict>
+</plist>

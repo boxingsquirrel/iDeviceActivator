@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>iPad1,1</key>
+	<string>http://appldnld.apple.com/iPad/061-8282.20100713.vgtgh/iPad1,1_3.2.1_7B405_Restore.ipsw</string>
+	<key>iPhone1,1</key>
+	<string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPhone/061-7481.20100202.4orot/iPhone1,1_3.1.3_7E18_Restore.ipsw</string>
+	<key>iPhone1,2</key>
+	<string>http://appldnld.apple.com/iPhone4/061-8616.20100715.phnt4/iPhone1,2_4.0.1_8A306_Restore.ipsw</string>
+	<key>iPhone2,1</key>
+	<string>http://appldnld.apple.com/iPhone4/061-8618.20100715.Zapn4/iPhone2,1_4.0.1_8A306_Restore.ipsw</string>
+	<key>iPhone3,1</key>
+	<string>http://appldnld.apple.com/iPhone4/061-8619.20100715.4Pnsx/iPhone3,1_4.0.1_8A306_Restore.ipsw</string>
+	<key>iPod1,1</key>
+	<string>http://pfd.apple.com/ProtectedAsset/iPodTouch/061-7479.20100202.Secrc/iPod1,1_3.1.3_7E18_Restore.ipsw?downloadKey=1279661879_3f5c89522b17a7dc9995b555652f9020</string>
+	<key>iPod2,1</key>
+	<string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPhone4/061-7435.20100621.tr49t/iPod2,1_4.0_8A293_Restore.ipsw</string>
+	<key>iPod3,1</key>
+	<string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPhone4/061-7381.20100621.AzSP9/iPod3,1_4.0_8A293_Restore.ipsw</string>
+</dict>
+</plist>

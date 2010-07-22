@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
+<!--Generated with glade3 3.4.5 on Wed Jul 21 19:03:26 2010 -->
+<glade-interface>
+  <widget class="GtkWindow" id="window1">
+    <property name="width_request">250</property>
+    <property name="height_request">150</property>
+    <property name="window_position">GTK_WIN_POS_CENTER</property>
+    <child>
+      <widget class="GtkVBox" id="vbox1">
+        <property name="visible">True</property>
+        <child>
+          <widget class="GtkHBox" id="hbox1">
+            <property name="height_request">0</property>
+            <property name="visible">True</property>
+            <child>
+              <widget class="GtkImage" id="devImg">
+                <property name="width_request">100</property>
+                <property name="height_request">100</property>
+                <property name="visible">True</property>
+                <property name="stock">gtk-missing-image</property>
+              </widget>
+            </child>
+            <child>
+              <widget class="GtkVBox" id="vbox2">
+                <property name="visible">True</property>
+                <property name="homogeneous">True</property>
+                <child>
+                  <widget class="GtkHBox" id="hbox2">
+                    <property name="visible">True</property>
+                    <child>
+                      <widget class="GtkLabel" id="label1">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Device:</property>
+                        <property name="single_line_mode">True</property>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkLabel" id="dName">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">None</property>
+                      </widget>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </widget>
+                </child>
+                <child>
+                  <widget class="GtkHBox" id="hbox3">
+                    <property name="visible">True</property>
+                    <child>
+                      <widget class="GtkLabel" id="label2">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Firmware:</property>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkLabel" id="fV">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">0.0.0</property>
+                      </widget>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkHBox" id="hbox5">
+                    <property name="visible">True</property>
+                    <child>
+                      <widget class="GtkButton" id="uBut">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="has_tooltip">True</property>
+                        <property name="tooltip_text">Download and install the latest firmware from Apple</property>
+                        <property name="tooltip" translatable="yes">Download and install the latest firmware from Apple</property>
+                        <property name="label" translatable="yes">Activate</property>
+                        <property name="response_id">0</property>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkButton" id="button1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="label" translatable="yes">Deactivate</property>
+                        <property name="response_id">0</property>
+                      </widget>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </widget>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="pL">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">iDeviceActivator</property>
+          </widget>
+          <packing>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+</glade-interface>

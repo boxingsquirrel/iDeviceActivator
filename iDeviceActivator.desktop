@@ -1,0 +1,17 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=iDeviceActivator
+Name[en_CA]=iDeviceActivator
+Name[en_GB]=iDeviceActivator
+Name[en_US]=iDeviceActivator
+Comment=Activate or deactivate an iPhone, iPod Touch, or iPad
+Comment[en_CA]=Activate or deactivate an iPhone, iPod Touch, or iPad
+Comment[en_GB]=Activate or deactivate an iPhone, iPod Touch, or iPad
+Comment[en_US]=Activate or deactivate an iPhone, iPod Touch, or iPad
+Exec=/usr/local/bin/iDeviceActivator
+Icon=/usr/local/share/iDeviceActivator/res/iPod.png
+OnlyShowIn=GNOME;XFCE;
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=GNOME;GTK;Utility;iDeviceActivator
