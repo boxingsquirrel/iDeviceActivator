@@ -25,6 +25,7 @@ all: tool
 tool: $(OBJFILES)
 	$(CC) -o $(OUTFILE) $(OBJFILES) $(LFLAGS)
 	gtk-builder-convert $(SRCDIR)/ui.glade $(RESDIR)/ui.xml
+	gtk-builder-convert $(SRCDIR)/name_prompt.glade $(RESDIR)/name_prompt.xml
 	@echo ""
 	@echo "Run 'make install' as root to install"
 

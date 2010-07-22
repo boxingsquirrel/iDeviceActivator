@@ -49,14 +49,20 @@ int conf_up=0;
 
 static void activate(GtkWidget *widget, gpointer data)
 {
+	// Let the main thread update...
 	gtk_main_iteration();
+
+	// Activate!
 	activate_thread();
+
+	// Fill in the info again (to get new device name)
+	fill_in_info();
 }
 
 static void deactivate(GtkWidget *widget, gpointer data)
 {
 	gtk_main_iteration();
-
+/*
 	printf("Deactivating the device...");
 	gtk_label_set_text(pL, "Deactivating the device...");
 	gtk_main_iteration();
@@ -77,6 +83,9 @@ static void deactivate(GtkWidget *widget, gpointer data)
 		gtk_main_iteration();
 		return -1;
 	}
+*/
+
+	deactivate_thread();
 }
 
 static void destroy(GtkWidget *widget, gpointer data)
@@ -167,7 +176,14 @@ int fill_in_info()
 
 	gtk_image_set_from_file(devImg, img);
 
+	//gtk_label_set_use_underline(dName, TRUE);
+
+	char devL[512]="";
+
+	snprintf(devL, 512, "<b>%s</b>", name);
+
 	gtk_label_set_text(dName, name);
+	gtk_label_set_markup(dName, devL);
 	gtk_label_set_text(fV, version);
 
 	return 0;

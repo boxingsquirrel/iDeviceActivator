@@ -37,6 +37,22 @@ typedef struct {
 	char* content;
 } activate_response;
 
+const char *new_name="iDevice";
+
+GtkWidget *d=NULL;
+GtkWidget *entry=NULL;
+
+static void apply_name(GtkWidget *widget, gpointer data)
+{
+	new_name=(const char *)gtk_entry_get_text(entry);
+	gtk_widget_destroy(d);
+}
+
+static void cancel_name(GtkWidget *widget, gpointer data)
+{
+	gtk_widget_destroy(d);
+}
+
 size_t activate_write_callback(char* data, size_t size, size_t nmemb, activate_response* response) {
 	size_t total = size * nmemb;
 	if (total != 0) {
@@ -197,7 +213,7 @@ int activate_fetch_record(lockdownd_client_t aclient, plist_t* record) {
 	curl_easy_setopt(handle, CURLOPT_HTTPHEADER, header);
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, response);
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, &activate_write_callback);
-	curl_easy_setopt(handle, CURLOPT_USERAGENT, "iTunes/9.1 (Macintosh; U; Intel Mac OS X 10.5.6)");
+	curl_easy_setopt(handle, CURLOPT_USERAGENT, "iTunes/9.2 (Macintosh; U; Intel Mac OS X 10.5.6)");
 	curl_easy_setopt(handle, CURLOPT_URL, "https://albert.apple.com/WebObjects/ALUnbrick.woa/wa/deviceActivation");
 
 	curl_easy_perform(handle);
@@ -350,5 +366,78 @@ int activate_thread()
 
 	plist_free(activation_record);
 	activation_record = NULL;
+
+	set_device_name_with_prompt();
+
 	return 0;
 }
+
+void set_device_name_with_prompt()
+{
+	GtkBuilder *builder;
+	GError* error = NULL;
+
+	builder = gtk_builder_new ();
+	if (!gtk_builder_add_from_file (builder, "/usr/local/share/iDeviceActivator/res/name_prompt.xml", &error))
+	{
+		g_warning ("Couldn't load builder file: %s", error->message);
+		g_error_free (error);
+	}
+
+	d=GTK_WIDGET(gtk_builder_get_object (builder, "dialog1"));
+	GtkWidget *aButton=GTK_WIDGET(gtk_builder_get_object (builder, "button1"));
+	GtkWidget *cButton=GTK_WIDGET(gtk_builder_get_object (builder, "button2"));
+	entry=GTK_WIDGET(gtk_builder_get_object (builder, "devNameEntry"));
+
+	g_signal_connect (G_OBJECT(aButton), "released", G_CALLBACK (apply_name), NULL);
+	g_signal_connect (G_OBJECT(cButton), "released", G_CALLBACK (cancel_name), NULL);
+
+	char* name=NULL;
+	lockdownd_get_device_name(client, &name);
+
+	gtk_entry_set_text(entry, (const gchar *)name);
+
+	gtk_dialog_run(GTK_DIALOG(d));
+
+
+	plist_t devName=NULL;
+	devName=plist_new_string(new_name);
+
+	lockdownd_set_value(client, NULL, "DeviceName", devName);
+}
+
+// Deactivates the device. Returns 0 for success and -1 for failure. My code.
+int deactivate_thread()
+{
+	// Update all the status
+	printf("Deactivating the device...");
+	gtk_label_set_text(pL, "Deactivating the device...");
+	gtk_main_iteration();
+
+	// Deactivate the device: 1 line of code!
+	lockdownd_error_t e=lockdownd_deactivate(client);
+
+	// It worked!
+	if (e==LOCKDOWN_E_SUCCESS)
+	{
+		// Say so...
+		printf("SUCCESS\n");
+		gtk_label_set_text(pL, "Deactivated the device sucessfully");
+		gtk_main_iteration();
+
+		// Return
+		return 0;
+	}
+
+	// Some error occured (my theory is that users don't care what error, but I might be wrong)
+	else {
+		// Say we've got an error...
+		printf("ERROR\n");
+		gtk_label_set_text(pL, "Could not deactivate the device");
+		gtk_main_iteration();
+
+		// Return -1
+		return -1;
+	}
+}
+

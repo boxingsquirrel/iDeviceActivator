@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Wed Jul 21 19:03:26 2010 -->
+<!--Generated with glade3 3.4.5 on Thu Jul 22 17:58:33 2010 -->
 <glade-interface>
   <widget class="GtkWindow" id="window1">
     <property name="width_request">250</property>
     <property name="height_request">150</property>
     <property name="window_position">GTK_WIN_POS_CENTER</property>
+    <property name="icon">iPod.png</property>
     <child>
       <widget class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
@@ -26,24 +27,11 @@
                 <property name="visible">True</property>
                 <property name="homogeneous">True</property>
                 <child>
-                  <widget class="GtkHBox" id="hbox2">
+                  <widget class="GtkLabel" id="dName">
                     <property name="visible">True</property>
-                    <child>
-                      <widget class="GtkLabel" id="label1">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">Device:</property>
-                        <property name="single_line_mode">True</property>
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkLabel" id="dName">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">None</property>
-                      </widget>
-                      <packing>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
+                    <property name="label" translatable="yes">&lt;b&gt;None&lt;/b&gt;</property>
+                    <property name="use_markup">True</property>
+                    <property name="use_underline">True</property>
                   </widget>
                 </child>
                 <child>
@@ -52,7 +40,8 @@
                     <child>
                       <widget class="GtkLabel" id="label2">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Firmware:</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Firmware:&lt;/b&gt;</property>
+                        <property name="use_markup">True</property>
                       </widget>
                     </child>
                     <child>

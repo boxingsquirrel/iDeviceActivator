@@ -22,10 +22,7 @@
 #ifndef ACTIVATE_H
 #define ACTIVATE_H
 
-#include <plist/plist.h>
-#include <libimobiledevice/lockdown.h>
-
-int activate_fetch_record(lockdownd_client_t lockdown, plist_t* record);
 extern int activate_thread();
+extern int deactivate_thread();
 
 #endif
