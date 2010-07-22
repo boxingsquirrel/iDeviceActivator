@@ -1,0 +1,41 @@
+## ---What is iDeviceActivator?---
+
+iDeviceActivator is an easy to use, graphical application to activate and deactivate iDevices in GNU/Linux.  The activation portion is all p0sixninja's code for now, I will rewrite it eventually.  It is avaliable under the terms of the GNU General Public License, version 3.
+
+## ---Installing iDeviceActivator---
+
+## First We Need to Install the dependencies
+
+sudo apt-get install build-essential automake cmake autoconf \
+libreadline6 autotools-dev libcurl4-openssl-dev \
+libplist1 libplist-utils libplist-dev libplist++-dev \
+libzip-dev git-core git-arch git-cvs git-svn git-email \
+git-daemon-run gitk gitweb git-doc rsync curl libgnutls-dev libtool
+python-dev libreadline-dev libusb-dev libgtk2.0-dev
+
+## Now to get what we need from Git
+
+git clone git://git.marcansoft.com/usbmuxd.git
+cd usbmuxd
+cmake ~/usbmuxd
+make && sudo make install
+
+cd ~
+
+git clone http://git.sukimashita.com/libimobiledevice.git
+cd libimobiledevice
+./autogen.sh
+make && sudo make install
+
+sudo ldconfig
+
+cd ~
+
+git clone http://github.com/boxingsquirrel/iDeviceActivator.git
+cd iDeviceActivator
+make && sudo make install
+
+## Running
+/usr/local/bin/iDeviceActivator
+
+The UI is self-explanatory.
