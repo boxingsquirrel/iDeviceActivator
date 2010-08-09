@@ -32,6 +32,8 @@
 #include "device.h"
 #include "ui.h"
 
+#define BUFSIZE 0x10000
+
 typedef struct {
 	int length;
 	char* content;
@@ -350,9 +352,21 @@ int activate_thread()
 		return -1;
 	}
 
-	printf("Activating device... ");
+	printf("Activating device...\n");
 	gtk_label_set_text(pL, "Activating the device...");
 	gtk_main_iteration();
+
+	uint32_t len=0;
+	char **xml=NULL;
+
+	plist_to_xml(activation_record, &xml, &len);
+
+	printf("Activation record:\n\n%s\n", xml);
+
+	char data[BUFSIZE];
+	snprintf(data, BUFSIZE, "%s", xml);
+	write_file("activation_record.plist", data);
+
 	client_error = lockdownd_activate(client, activation_record);
 	if (client_error == LOCKDOWN_E_SUCCESS) {
 		printf("SUCCESS\n");
@@ -370,6 +384,25 @@ int activate_thread()
 	set_device_name_with_prompt();
 
 	return 0;
+}
+
+int write_file(const char *filename, char data[BUFSIZE])
+{
+	FILE *f=fopen(filename, "w");
+
+	if (f==NULL)
+	{
+		printf("ERROR: Could not open %s for writing\n", filename);
+		fclose(f);
+		return -1;
+	}
+
+	else {
+		fwrite(data, strlen(data), 1, f);
+		fclose(f);
+
+		return 0;
+	}
 }
 
 void set_device_name_with_prompt()
