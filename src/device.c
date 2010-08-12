@@ -13,9 +13,6 @@ int set_up()
 {
 	int se=setUpDevice();
 	int le=start_lockdownd();
-
-	printf(se);
-	printf(le);
 }
 
 int setUpDevice()

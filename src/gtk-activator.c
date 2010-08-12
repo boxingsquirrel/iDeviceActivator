@@ -24,6 +24,7 @@ GtkWidget *devImg;
 GtkWidget *dName;
 GtkWidget *fV;
 GtkWidget *pL;
+GtkWidget *mmle_check;
 
 char latest_plist[BUFSIZE];
 char current_plist[BUFSIZE];
@@ -52,40 +53,38 @@ static void activate(GtkWidget *widget, gpointer data)
 	// Let the main thread update...
 	gtk_main_iteration();
 
-	// Activate!
-	activate_thread();
+	gboolean make_my_life_easier=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mmle_check));
+
+	if (make_my_life_easier)
+	{
+		// Activate!
+		activate_thread(1);
+	}
+	else {
+		if (confirm("Are you sure you don't want you life to be easier should you have to reactivate?", "Are you sure?")!=1)
+		{
+			gtk_main_iteration();
+
+			// Activate!
+			activate_thread(1);
+		}
+		else {
+			gtk_main_iteration();
+
+			// Activate!
+			activate_thread(0);
+		}
+	}
 
 	// Fill in the info again (to get new device name)
-	fill_in_info();
+	//fill_in_info();
 }
 
 static void deactivate(GtkWidget *widget, gpointer data)
 {
 	gtk_main_iteration();
-/*
-	printf("Deactivating the device...");
-	gtk_label_set_text(pL, "Deactivating the device...");
-	gtk_main_iteration();
 
-	lockdownd_error_t e=lockdownd_deactivate(client);
-
-	if (e==LOCKDOWN_E_SUCCESS)
-	{
-		printf("SUCCESS\n");
-		gtk_label_set_text(pL, "Deactivated the device sucessfully");
-		gtk_main_iteration();
-		return 0;
-	}
-
-	else {
-		printf("ERROR\n");
-		gtk_label_set_text(pL, "Could not deactivate the device");
-		gtk_main_iteration();
-		return -1;
-	}
-*/
-
-	deactivate_thread();
+	deactivate_device(client);
 }
 
 static void destroy(GtkWidget *widget, gpointer data)
@@ -119,6 +118,7 @@ int main(int argc, char *argv[])
 	dName=GTK_WIDGET(gtk_builder_get_object(builder, "dName"));
 	fV=GTK_WIDGET(gtk_builder_get_object(builder, "fV"));
 	pL=GTK_WIDGET(gtk_builder_get_object(builder, "pL"));
+	mmle_check=GTK_WIDGET(gtk_builder_get_object(builder, "make_my_life_easier"));
 
 	g_signal_connect (G_OBJECT (button), "released",
 		      G_CALLBACK (activate), NULL);
@@ -128,6 +128,8 @@ int main(int argc, char *argv[])
 		      G_CALLBACK (destroy), NULL);
 
 	set_up();
+
+	read_in_plists();
 
 	fill_in_info();
 
@@ -142,8 +144,6 @@ int main(int argc, char *argv[])
 
 int fill_in_info()
 {
-	read_in_plists();
-
 	plist_t *node=NULL;
 	char* type=NULL;
 	char* version=NULL;

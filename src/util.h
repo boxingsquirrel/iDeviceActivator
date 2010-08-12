@@ -1,8 +1,8 @@
 /*
- * activate.h
- * Functions to fetch activation records from Apple's servers
+ * util.h
+ * Just utility functions ;)
  *
- * Copyright (c) 2010 Joshua Hill. All Rights Reserved.
+ * Copyright (c) 2010 Joshua Hill and boxingsquirrel. All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,17 +19,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef ACTIVATE_H
-#define ACTIVATE_H
-
-#include <plist/plist.h>
 #include <libimobiledevice/lockdown.h>
 
-extern int activate_thread(int mmle);
+// These just wrap p0sixninja's original code, just trying to clean up...
+extern int plist_read_from_filename(plist_t *plist, const char *filename);
+extern int buffer_read_from_filename(const char *filename, char **buffer, uint32_t *length);
+extern char *lockdownd_get_string_value(lockdownd_client_t client, const char *what);
 
-extern int activate_fetch_record(lockdownd_client_t client, plist_t* record, char* cust_imei, char* cust_imsi, char* cust_iccid, char* cust_serial_num);
-extern int do_activation(lockdownd_client_t client, plist_t activation_record);
-
-extern void deactivate_device(lockdownd_client_t client);
-
-#endif
+// The main purpose of these two is to provide a way to mod the behavior, plus a bit of shorthand ;)
+extern void info(const char *m);
+extern void error(const char *m);
+extern void task(const char *m);

@@ -5,7 +5,7 @@
 void set_button_label(const gchar *label)
 {
 	gtk_button_set_label(button, label);
-	gtk_button_set_label(button, label);
+	gtk_main_iteration();
 }
 
 void set_progress(const gchar *label)
@@ -15,7 +15,7 @@ void set_progress(const gchar *label)
 }
 
 // Displays a little GTK+ info dialog with the specified text and title
-void info(const char *text, const char *title)
+void ginfo(const char *text, const char *title)
 {
 		// Create the dialog
 		GtkWidget *d=gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, text);

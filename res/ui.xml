@@ -1,129 +1,125 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
+<?xml version="1.0"?>
 <!--Generated with glade3 3.4.5 on Thu Aug 12 13:40:23 2010 -->
-<glade-interface>
-  <widget class="GtkWindow" id="window1">
+<interface>
+  <object class="GtkWindow" id="window1">
     <property name="height_request">156</property>
     <property name="window_position">GTK_WIN_POS_CENTER</property>
     <property name="icon">iPod.png</property>
     <child>
-      <widget class="GtkVBox" id="vbox1">
+      <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
         <child>
-          <widget class="GtkHBox" id="hbox1">
+          <object class="GtkHBox" id="hbox1">
             <property name="height_request">0</property>
             <property name="visible">True</property>
             <child>
-              <widget class="GtkImage" id="devImg">
+              <object class="GtkImage" id="devImg">
                 <property name="width_request">100</property>
                 <property name="height_request">100</property>
                 <property name="visible">True</property>
                 <property name="stock">gtk-missing-image</property>
-              </widget>
+              </object>
               <packing>
                 <property name="padding">5</property>
               </packing>
             </child>
             <child>
-              <widget class="GtkVBox" id="vbox2">
+              <object class="GtkVBox" id="vbox2">
                 <property name="visible">True</property>
                 <property name="homogeneous">True</property>
                 <child>
-                  <widget class="GtkLabel" id="dName">
+                  <object class="GtkLabel" id="dName">
                     <property name="visible">True</property>
                     <property name="label" translatable="yes">&lt;b&gt;None&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
                     <property name="use_underline">True</property>
-                  </widget>
+                  </object>
                 </child>
                 <child>
-                  <widget class="GtkHBox" id="hbox3">
+                  <object class="GtkHBox" id="hbox3">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkLabel" id="label2">
+                      <object class="GtkLabel" id="label2">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">&lt;b&gt;Firmware:&lt;/b&gt;</property>
                         <property name="use_markup">True</property>
-                      </widget>
+                      </object>
                     </child>
                     <child>
-                      <widget class="GtkLabel" id="fV">
+                      <object class="GtkLabel" id="fV">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">0.0.0</property>
-                      </widget>
+                      </object>
                       <packing>
                         <property name="position">1</property>
                       </packing>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkHBox" id="hbox5">
+                  <object class="GtkHBox" id="hbox5">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkButton" id="uBut">
+                      <object class="GtkButton" id="uBut">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="has_tooltip">True</property>
-                        <property name="tooltip" translatable="yes">Download and install the latest firmware from Apple</property>
+                        <property name="tooltip-text" translatable="yes">Download and install the latest firmware from Apple</property>
                         <property name="label" translatable="yes">Activate</property>
-                        <property name="response_id">0</property>
-                      </widget>
+                      </object>
                     </child>
                     <child>
-                      <widget class="GtkButton" id="button1">
+                      <object class="GtkButton" id="button1">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="label" translatable="yes">Deactivate</property>
-                        <property name="response_id">0</property>
-                      </widget>
+                      </object>
                       <packing>
                         <property name="position">1</property>
                       </packing>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="position">2</property>
                   </packing>
                 </child>
-              </widget>
+              </object>
               <packing>
                 <property name="position">1</property>
               </packing>
             </child>
-          </widget>
+          </object>
         </child>
         <child>
-          <widget class="GtkCheckButton" id="make_my_life_easier">
+          <object class="GtkCheckButton" id="make_my_life_easier">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="tooltip" translatable="yes">If selected, iDeviceActivator will cache some data IN THE DIRECTORY YOU RUN IT FROM.
+            <property name="tooltip-text" translatable="yes">If selected, iDeviceActivator will cache some data IN THE DIRECTORY YOU RUN IT FROM.
 This data IS NOT sent to a remote server!</property>
             <property name="label" translatable="yes">Make my life _easier</property>
             <property name="use_underline">True</property>
-            <property name="response_id">0</property>
             <property name="active">True</property>
             <property name="draw_indicator">True</property>
-          </widget>
+          </object>
           <packing>
             <property name="position">1</property>
           </packing>
         </child>
         <child>
-          <widget class="GtkLabel" id="pL">
+          <object class="GtkLabel" id="pL">
             <property name="visible">True</property>
             <property name="label" translatable="yes">iDeviceActivator</property>
-          </widget>
+          </object>
           <packing>
             <property name="position">2</property>
           </packing>
         </child>
-      </widget>
+      </object>
     </child>
-  </widget>
-</glade-interface>
+  </object>
+</interface>

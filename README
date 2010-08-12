@@ -1,41 +1,49 @@
-## ---What is iDeviceActivator?---
+===What is iDeviceActivator?===
 
-iDeviceActivator is an easy to use, graphical application to activate and deactivate iDevices in GNU/Linux.  The activation portion is all p0sixninja's code for now, I will rewrite it eventually.  It is avaliable under the terms of the GNU General Public License, version 3.
+iDeviceActivator is an easy to use, graphical application to activate and deactivate iDevices in GNU/Linux.  The activation portion is all based on my fork of ideviceactivate.  It is avaliable under the terms of the GNU General Public License, version 3.
 
-## ---Installing iDeviceActivator---
+===Installing iDeviceActivator===
 
-## First We Need to Install the dependencies
+	==From Debian package==
+	dpkg -i ./iDeviceActivator_0.1_i386.deb
 
-sudo apt-get install build-essential automake cmake autoconf \
-libreadline6 autotools-dev libcurl4-openssl-dev \
-libplist1 libplist-utils libplist-dev libplist++-dev \
-libzip-dev git-core git-arch git-cvs git-svn git-email \
-git-daemon-run gitk gitweb git-doc rsync curl libgnutls-dev libtool
-python-dev libreadline-dev libusb-dev libgtk2.0-dev
+	==From binary snapshot==
+	Extract iDeviceActivator to somewhere in your PATH.
+	Extract data and res to /usr/local/share/iDeviceActivator
 
-## Now to get what we need from Git
+	==From Github==
+	=First We Need to Install the dependencies=
 
-git clone git://git.marcansoft.com/usbmuxd.git
-cd usbmuxd
-cmake ~/usbmuxd
-make && sudo make install
+	sudo apt-get install build-essential automake cmake autoconf \
+	libreadline6 autotools-dev libcurl4-openssl-dev \
+	libplist1 libplist-utils libplist-dev libplist++-dev \
+	libzip-dev git-core git-arch git-cvs git-svn git-email \
+	git-daemon-run gitk gitweb git-doc rsync curl libgnutls-dev libtool
+	python-dev libreadline-dev libusb-dev libgtk2.0-dev
 
-cd ~
+	=Now to get what we need from Git=
 
-git clone http://git.sukimashita.com/libimobiledevice.git
-cd libimobiledevice
-./autogen.sh
-make && sudo make install
+	git clone git://git.marcansoft.com/usbmuxd.git
+	cd usbmuxd
+	cmake ~/usbmuxd
+	make && sudo make install
 
-sudo ldconfig
+	cd ~
 
-cd ~
+	git clone http://git.sukimashita.com/libimobiledevice.git
+	cd libimobiledevice
+	./autogen.sh
+	make && sudo make install
 
-git clone http://github.com/boxingsquirrel/iDeviceActivator.git
-cd iDeviceActivator
-make && sudo make install
+	sudo ldconfig
 
-## Running
-/usr/local/bin/iDeviceActivator
+	cd ~
 
-The UI is self-explanatory.
+	git clone http://github.com/boxingsquirrel/iDeviceActivator.git
+	cd iDeviceActivator
+	make && sudo make install
+
+===Running===
+/usr/local/bin/iDeviceActivator or Go to Applications->Accessories->iDeviceActivator
+
+The UI is self-explanatory, with the exception of 'Make my life easier'. Simply put, this caches some important data ON YOUR MACHINE. This data allows you to get an activation record any number of times for a device if the initial activation was done with an official, legit sim. YOU WANT THIS!

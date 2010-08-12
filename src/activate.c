@@ -24,36 +24,22 @@
 #include <string.h>
 #include <curl/curl.h>
 #include <plist/plist.h>
-#include <libimobiledevice/libimobiledevice.h>
 #include <libimobiledevice/lockdown.h>
-#include <gtk/gtk.h>
-
-#include "activate.h"
-#include "device.h"
-#include "ui.h"
-
-#define BUFSIZE 0x10000
+#include "cache.h"
+#include "util.h"
 
 typedef struct {
 	int length;
 	char* content;
 } activate_response;
 
-const char *new_name="iDevice";
-
-GtkWidget *d=NULL;
-GtkWidget *entry=NULL;
-
-static void apply_name(GtkWidget *widget, gpointer data)
-{
-	new_name=(const char *)gtk_entry_get_text(entry);
-	gtk_widget_destroy(d);
-}
-
-static void cancel_name(GtkWidget *widget, gpointer data)
-{
-	gtk_widget_destroy(d);
-}
+typedef struct {
+	char* imei;
+	char* imsi;
+	char* iccid;
+	char* serial_number;
+	char* activation_info;
+} activate_info;
 
 size_t activate_write_callback(char* data, size_t size, size_t nmemb, activate_response* response) {
 	size_t total = size * nmemb;
@@ -67,73 +53,108 @@ size_t activate_write_callback(char* data, size_t size, size_t nmemb, activate_r
 	return total;
 }
 
-int activate_fetch_record(lockdownd_client_t aclient, plist_t* record) {
-	int size = 0;
-	char* request = NULL;
+void deactivate_device(lockdownd_client_t client)
+{
+	printf("Deactivating device... ");
+	int client_error = lockdownd_deactivate(client);
+	if (client_error == LOCKDOWN_E_SUCCESS) {
+		printf("SUCCESS\n");
+	} else {
+		fprintf(stderr, "ERROR\nUnable to deactivate device: %d\n", client_error);
+	}
+}
+
+int activate_fetch_record(lockdownd_client_t client, plist_t* record, char* cust_imei, char* cust_imsi, char* cust_iccid, char* cust_serial_num) {
 	struct curl_httppost* post = NULL;
 	struct curl_httppost* last = NULL;
 	activate_response* response = NULL;
 
-	char* imei = NULL;
-	char* imsi = NULL;
-	char* iccid = NULL;
-	char* serial_number = NULL;
-	char* activation_info = NULL;
-
-	plist_t imei_node = NULL;
-	plist_t imsi_node = NULL;
-	plist_t iccid_node = NULL;
-	plist_t serial_number_node = NULL;
 	plist_t activation_info_node = NULL;
 
+	char* activation_info;
+
+	activate_info* ainfo;
+
 	char* device_class = NULL;
-	plist_t device_class_node = NULL;
-	lockdownd_get_value(client, NULL, "DeviceClass", &device_class_node);
-	if (!device_class_node || plist_get_node_type(device_class_node) != PLIST_STRING) {
-		fprintf(stderr, "Unable to get DeviceClass from lockdownd\n");
-		return -1;
-	}
-	plist_get_string_val(device_class_node, &device_class);
-	plist_free(device_class_node);
+	device_class=(char*)lockdownd_get_string_value(client, "DeviceClass");
 
 	if (!strcmp(device_class, "iPhone")) {
-		lockdownd_get_value(client, NULL, "IntegratedCircuitCardIdentity", &iccid_node);
-		if (!iccid_node || plist_get_node_type(iccid_node) != PLIST_STRING) {
-			fprintf(stderr, "Unable to get ICCID from lockdownd\n");
-			return -1;
-		}
-		plist_get_string_val(iccid_node, &iccid);
-		plist_free(iccid_node);
+		if (use_cache!=1)
+		{
+			if (cust_iccid==NULL)
+			{
+				ainfo->iccid=(char*)lockdownd_get_string_value(client, "IntegratedCircuitCardIdentity");
+			}
+			else {
+				info("ICCID specified on the command line...");
+				ainfo->iccid=cust_iccid;
+			}
 
-		lockdownd_get_value(client, NULL, "InternationalMobileEquipmentIdentity", &imei_node);
-		if (!imei_node || plist_get_node_type(imei_node) != PLIST_STRING) {
-			fprintf(stderr, "Unable to get IMEI from lockdownd\n");
-			return -1;
-		}
-		plist_get_string_val(imei_node, &imei);
-		plist_free(imei_node);
+			if (cust_imei==NULL)
+			{
+				ainfo->imei=(char*)lockdownd_get_string_value(client, "InternationalMobileEquipmentIdentity");
+			}
+			else {
+				info("IMEI specified on the command line...");
+				ainfo->imei=cust_imei;
+			}
 
-		lockdownd_get_value(client, NULL, "InternationalMobileSubscriberIdentity", &imsi_node);
-		if (!imsi_node || plist_get_node_type(imsi_node) != PLIST_STRING) {
-			fprintf(stderr, "Unable to get IMSI from lockdownd\n");
-			return -1;
+			if (cust_imsi==NULL)
+			{
+				ainfo->imsi=(char*)lockdownd_get_string_value(client, "InternationalMobileSubscriberIdentity");
+			}
+			else {
+				info("IMSI specified on the command line...");
+				ainfo->imsi=cust_imsi;
+			}
 		}
-		plist_get_string_val(imsi_node, &imsi);
-		plist_free(imsi_node);
+
+		else {
+			if (cust_iccid==NULL)
+			{
+				ainfo->iccid=get_from_cache("ICCID");
+			}
+			else {
+				ainfo->iccid=cust_iccid;
+			}
+
+			if (cust_imei==NULL)
+			{
+				ainfo->imei=get_from_cache("IMEI");
+			}
+			else {
+				ainfo->imei=cust_imei;
+			}
+
+			if (cust_imsi==NULL)
+			{
+				ainfo->imsi=get_from_cache("IMSI");
+			}
+			else {
+				ainfo->imsi=cust_imsi;
+			}
+		}
 	}
 
-	lockdownd_get_value(client, NULL, "SerialNumber", &serial_number_node);
-	if (!serial_number_node || plist_get_node_type(serial_number_node) != PLIST_STRING) {
-		fprintf(stderr, "Unable to get SerialNumber from lockdownd\n");
-		return -1;
+	if (cust_serial_num==NULL)
+	{
+		if (use_cache!=1)
+		{
+			ainfo->serial_number=(char*)lockdownd_get_string_value(client, "SerialNumber");
+		}
+		else {
+			ainfo->serial_number=get_from_cache("SerialNumber");
+		}
 	}
-	plist_get_string_val(serial_number_node, &serial_number);
-	plist_free(serial_number_node);
+	else {
+		info("Serial number specified on the command line...");
+		ainfo->serial_number=cust_serial_num;
+	}
 
 	lockdownd_get_value(client, NULL, "ActivationInfo", &activation_info_node);
 	int type = plist_get_node_type(activation_info_node);
 	if (!activation_info_node || plist_get_node_type(activation_info_node) != PLIST_DICT) {
-		fprintf(stderr, "Unable to get ActivationInfo from lockdownd\n");
+		error("Unable to get ActivationInfo from lockdownd");
 		return -1;
 	}
 	//plist_get_string_val(activation_info_node, &activation_info);
@@ -146,13 +167,13 @@ int activate_fetch_record(lockdownd_client_t aclient, plist_t* record) {
 
 	char* activation_info_start = strstr(activation_info_data, "<dict>");
 	if (activation_info_start == NULL) {
-		fprintf(stderr, "Unable to locate beginning of ActivationInfo\n");
+		error("Unable to locate beginning of ActivationInfo");
 		return -1;
 	}
 
 	char* activation_info_stop = strstr(activation_info_data, "</dict>");
 	if (activation_info_stop == NULL) {
-		fprintf(stderr, "Unable to locate end of ActivationInfo\n");
+		error("Unable to locate end of ActivationInfo");
 		return -1;
 	}
 
@@ -161,40 +182,57 @@ int activate_fetch_record(lockdownd_client_t aclient, plist_t* record) {
 	activation_info = malloc(activation_info_size + 1);
 	memset(activation_info, '\0', activation_info_size + 1);
 	memcpy(activation_info, activation_info_start, activation_info_size);
-	free(activation_info_data);
+	//free(activation_info_data);
 
 	curl_global_init(CURL_GLOBAL_ALL);
 	CURL* handle = curl_easy_init();
 	if (handle == NULL) {
-		fprintf(stderr, "Unable to initialize libcurl\n");
+		error("Unable to initialize libcurl");
 		curl_global_cleanup();
 		return -1;
 	}
 
 	curl_formadd(&post, &last, CURLFORM_COPYNAME, "machineName", CURLFORM_COPYCONTENTS, "linux", CURLFORM_END);
 	curl_formadd(&post, &last, CURLFORM_COPYNAME, "InStoreActivation", CURLFORM_COPYCONTENTS, "false", CURLFORM_END);
-	if (imei != NULL) {
-		curl_formadd(&post, &last, CURLFORM_COPYNAME, "IMEI", CURLFORM_COPYCONTENTS, imei, CURLFORM_END);
-		free(imei);
+	if (ainfo->imei != NULL) {
+		curl_formadd(&post, &last, CURLFORM_COPYNAME, "IMEI", CURLFORM_COPYCONTENTS, ainfo->imei, CURLFORM_END);
+		cache("IMEI", (const char *)ainfo->imei);
+		//free(ainfo->imei);
+	}
+	else {
+		cache("IMEI", "");
 	}
 
-	if (imsi != NULL) {
-		curl_formadd(&post, &last, CURLFORM_COPYNAME, "IMSI", CURLFORM_COPYCONTENTS, imsi, CURLFORM_END);
-		free(imsi);
+	if (ainfo->imsi != NULL) {
+		curl_formadd(&post, &last, CURLFORM_COPYNAME, "IMSI", CURLFORM_COPYCONTENTS, ainfo->imsi, CURLFORM_END);
+		cache("IMSI", (const char *)ainfo->imsi);
+		//free(ainfo->imsi);
+	}
+	else {
+		cache("IMSI", "");
 	}
 
-	if (iccid != NULL) {
-		curl_formadd(&post, &last, CURLFORM_COPYNAME, "ICCID", CURLFORM_COPYCONTENTS, iccid, CURLFORM_END);
-		free(iccid);
+	if (ainfo->iccid != NULL) {
+		curl_formadd(&post, &last, CURLFORM_COPYNAME, "ICCID", CURLFORM_COPYCONTENTS, ainfo->iccid, CURLFORM_END);
+		cache("ICCID", (const char *)ainfo->iccid);
+		//free(ainfo->iccid);
+	}
+	else {
+		cache("ICCID", "");
 	}
 
-	if (serial_number != NULL) {
-		curl_formadd(&post, &last, CURLFORM_COPYNAME, "AppleSerialNumber", CURLFORM_COPYCONTENTS, serial_number, CURLFORM_END);
-		free(serial_number);
+	if (ainfo->serial_number != NULL) {
+		curl_formadd(&post, &last, CURLFORM_COPYNAME, "AppleSerialNumber", CURLFORM_COPYCONTENTS, ainfo->serial_number, CURLFORM_END);
+		cache("SerialNumber", (const char *)ainfo->serial_number);
+		free(ainfo->serial_number);
+	}
+	else {
+		cache("SeralNumber", "");
 	}
 
 	if (activation_info != NULL) {
 		curl_formadd(&post, &last, CURLFORM_COPYNAME, "activation-info", CURLFORM_COPYCONTENTS, activation_info, CURLFORM_END);
+		cache("ActivationInfo", activation_info);
 		free(activation_info);
 	}
 
@@ -204,7 +242,7 @@ int activate_fetch_record(lockdownd_client_t aclient, plist_t* record) {
 
 	response = malloc(sizeof(activate_response));
 	if (response == NULL) {
-		fprintf(stderr, "Unable to allocate sufficent memory\n");
+		error("Unable to allocate sufficent memory");
 		return -1;
 	}
 
@@ -215,7 +253,7 @@ int activate_fetch_record(lockdownd_client_t aclient, plist_t* record) {
 	curl_easy_setopt(handle, CURLOPT_HTTPHEADER, header);
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, response);
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, &activate_write_callback);
-	curl_easy_setopt(handle, CURLOPT_USERAGENT, "iTunes/9.2 (Macintosh; U; Intel Mac OS X 10.5.6)");
+	curl_easy_setopt(handle, CURLOPT_USERAGENT, "iTunes/9.1 (Macintosh; U; Intel Mac OS X 10.5.6)");
 	curl_easy_setopt(handle, CURLOPT_URL, "https://albert.apple.com/WebObjects/ALUnbrick.woa/wa/deviceActivation");
 
 	curl_easy_perform(handle);
@@ -228,13 +266,13 @@ int activate_fetch_record(lockdownd_client_t aclient, plist_t* record) {
 
 	char* ticket_start = strstr(ticket_data, "<plist");
 	if (ticket_start == NULL) {
-		fprintf(stderr, "Unable to locate beginning of ActivationInfo\n");
+		error("Unable to locate beginning of ActivationInfo");
 		return -1;
 	}
 
 	char* ticket_stop = strstr(ticket_data, "</plist>");
 	if (ticket_stop == NULL) {
-		fprintf(stderr, "Unable to locate end of ActivationInfo\n");
+		error("Unable to locate end of ActivationInfo");
 		return -1;
 	}
 
@@ -243,14 +281,14 @@ int activate_fetch_record(lockdownd_client_t aclient, plist_t* record) {
 	char* ticket = malloc(ticket_size + 1);
 	memset(ticket, '\0', ticket_size + 1);
 	memcpy(ticket, ticket_start, ticket_size);
-	//free(ticket_data);
+	free(ticket_data);
 
 	//printf("%s\n\n", ticket);
 
 	plist_t ticket_dict = NULL;
 	plist_from_xml(ticket, ticket_size, &ticket_dict);
 	if (ticket_dict == NULL) {
-		printf("Unable to convert activation ticket into plist\n");
+		error("Unable to convert activation ticket into plist");
 		return -1;
 	}
 
@@ -258,14 +296,14 @@ int activate_fetch_record(lockdownd_client_t aclient, plist_t* record) {
 	if (!iphone_activation_node) {
 		iphone_activation_node = plist_dict_get_item(ticket_dict, "device-activation");
 		if (!iphone_activation_node) {
-			printf("Unable to find device activation node\n");
+			error("Unable to find device activation node");
 			return -1;
 		}
 	}
 
 	plist_t activation_record = plist_dict_get_item(iphone_activation_node, "activation-record");
 	if (!activation_record) {
-		printf("Unable to find activation record node");
+		error("Unable to find activation record node");
 		return -1;
 	}
 
@@ -273,204 +311,30 @@ int activate_fetch_record(lockdownd_client_t aclient, plist_t* record) {
 
 	//free(response->content);
 	//free(response);
-	//free(request);
 	return 0;
 }
 
-/* Start ideviceactivate.c */
-static int buffer_read_from_filename(const char *filename, char **buffer, uint32_t *length) {
-	FILE *f;
-	uint64_t size;
-
-	f = fopen(filename, "rb");
-	if(f == NULL) {
-		printf("Unable to open file %s\n", filename);
-		return -1;
-	}
-
-	fseek(f, 0, SEEK_END);
-	size = ftell(f);
-	rewind(f);
-
-	*buffer = (char*) malloc(sizeof(char) * size);
-	if (fread(*buffer, sizeof(char), size, f) != size) {
-		printf("Unable to read %llu bytes from '%s'.\n", size, filename);
-		free(*buffer);
-		*buffer = NULL;
-	}
-	fclose(f);
-
-	*length = size;
-	return 0;
-}
-
-static int plist_read_from_filename(plist_t *plist, const char *filename) {
-	char *buffer = NULL;
-	uint32_t length;
-
-	if (filename == NULL) {
-		printf("No filename specified\n");
-		return -1;
-	}
-
-	if(buffer_read_from_filename(filename, &buffer, &length) < 0) {
-		printf("Unable to read file\n");
-		return -1;
-	}
-
-	if (buffer ==  NULL) {
-		printf("Buffer returned null\n");
-		return -1;
-	}
-
-	if (memcmp(buffer, "bplist00", 8) == 0) {
-		plist_from_bin(buffer, length, plist);
-	} else {
-		plist_from_xml(buffer, length, plist);
-	}
-
-	free(buffer);
-
-	return 0;
-}
-
-int activate_thread()
+int do_activation(lockdownd_client_t client, plist_t activation_record)
 {
-	idevice_error_t device_error = IDEVICE_E_UNKNOWN_ERROR;
-	lockdownd_error_t client_error = LOCKDOWN_E_UNKNOWN_ERROR;
-
-	plist_t activation_record = NULL;
-	printf("Creating activation request\n");
-	gtk_label_set_text(pL, "Creating the activation request...");
-	gtk_main_iteration();
-	if(activate_fetch_record(client, &activation_record) < 0) {
-		fprintf(stderr, "Unable to fetch activation request\n");
-		gtk_label_set_text(pL, "Unable to fetch actiovation request");
-		gtk_main_iteration();
-		lockdownd_client_free(client);
-		idevice_free(device);
-		return -1;
-	}
-
 	printf("Activating device...\n");
-	gtk_label_set_text(pL, "Activating the device...");
-	gtk_main_iteration();
 
+	// Just my little dump'n'run exercise with the activation record...
 	uint32_t len=0;
 	char **xml=NULL;
 
 	plist_to_xml(activation_record, &xml, &len);
+	printf("ACTIVATION RECORD:\n\n%s\n\n", xml);
 
-	printf("Activation record:\n\n%s\n", xml);
-
-	char data[BUFSIZE];
-	snprintf(data, BUFSIZE, "%s", xml);
-	write_file("activation_record.plist", data);
-
-	client_error = lockdownd_activate(client, activation_record);
+	// Let's do this!
+	lockdownd_error_t client_error = lockdownd_activate(client, activation_record);
 	if (client_error == LOCKDOWN_E_SUCCESS) {
 		printf("SUCCESS\n");
-		gtk_label_set_text(pL, "Activated the device sucessfully");
-		gtk_main_iteration();
+		return 0;
 	} else {
 		fprintf(stderr, "ERROR\nUnable to activate device: %d\n", client_error);
-		gtk_label_set_text(pL, "Unable to activate the device");
-		gtk_main_iteration();
+		return -1;
 	}
 
-	plist_free(activation_record);
+	//plist_free(activation_record);
 	activation_record = NULL;
-
-	set_device_name_with_prompt();
-
-	return 0;
 }
-
-int write_file(const char *filename, char data[BUFSIZE])
-{
-	FILE *f=fopen(filename, "w");
-
-	if (f==NULL)
-	{
-		printf("ERROR: Could not open %s for writing\n", filename);
-		fclose(f);
-		return -1;
-	}
-
-	else {
-		fwrite(data, strlen(data), 1, f);
-		fclose(f);
-
-		return 0;
-	}
-}
-
-void set_device_name_with_prompt()
-{
-	GtkBuilder *builder;
-	GError* error = NULL;
-
-	builder = gtk_builder_new ();
-	if (!gtk_builder_add_from_file (builder, "/usr/local/share/iDeviceActivator/res/name_prompt.xml", &error))
-	{
-		g_warning ("Couldn't load builder file: %s", error->message);
-		g_error_free (error);
-	}
-
-	d=GTK_WIDGET(gtk_builder_get_object (builder, "dialog1"));
-	GtkWidget *aButton=GTK_WIDGET(gtk_builder_get_object (builder, "button1"));
-	GtkWidget *cButton=GTK_WIDGET(gtk_builder_get_object (builder, "button2"));
-	entry=GTK_WIDGET(gtk_builder_get_object (builder, "devNameEntry"));
-
-	g_signal_connect (G_OBJECT(aButton), "released", G_CALLBACK (apply_name), NULL);
-	g_signal_connect (G_OBJECT(cButton), "released", G_CALLBACK (cancel_name), NULL);
-
-	char* name=NULL;
-	lockdownd_get_device_name(client, &name);
-
-	gtk_entry_set_text(entry, (const gchar *)name);
-
-	gtk_dialog_run(GTK_DIALOG(d));
-
-
-	plist_t devName=NULL;
-	devName=plist_new_string(new_name);
-
-	lockdownd_set_value(client, NULL, "DeviceName", devName);
-}
-
-// Deactivates the device. Returns 0 for success and -1 for failure. My code.
-int deactivate_thread()
-{
-	// Update all the status
-	printf("Deactivating the device...");
-	gtk_label_set_text(pL, "Deactivating the device...");
-	gtk_main_iteration();
-
-	// Deactivate the device: 1 line of code!
-	lockdownd_error_t e=lockdownd_deactivate(client);
-
-	// It worked!
-	if (e==LOCKDOWN_E_SUCCESS)
-	{
-		// Say so...
-		printf("SUCCESS\n");
-		gtk_label_set_text(pL, "Deactivated the device sucessfully");
-		gtk_main_iteration();
-
-		// Return
-		return 0;
-	}
-
-	// Some error occured (my theory is that users don't care what error, but I might be wrong)
-	else {
-		// Say we've got an error...
-		printf("ERROR\n");
-		gtk_label_set_text(pL, "Could not deactivate the device");
-		gtk_main_iteration();
-
-		// Return -1
-		return -1;
-	}
-}
-
