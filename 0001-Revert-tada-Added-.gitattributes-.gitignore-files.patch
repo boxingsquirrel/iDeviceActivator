@@ -1,0 +1,86 @@
+From 66f02e023030f3c295a541ee9adde728e119d0fb Mon Sep 17 00:00:00 2001
+From: centraldereparation <falash143@yahoo.com>
+Date: Sun, 20 Jul 2014 07:02:36 +0200
+Subject: [PATCH] Revert ":tada: Added .gitattributes & .gitignore files"
+
+This reverts commit a9a8f614e1fde971bed365ebc30db36e9f3560f1.
+---
+ .gitattributes | 22 ----------------------
+ .gitignore     | 36 ------------------------------------
+ 2 files changed, 58 deletions(-)
+ delete mode 100644 .gitattributes
+ delete mode 100644 .gitignore
+
+diff --git a/.gitattributes b/.gitattributes
+deleted file mode 100644
+index 412eeda..0000000
+--- a/.gitattributes
++++ /dev/null
+@@ -1,22 +0,0 @@
+-# Auto detect text files and perform LF normalization
+-* text=auto
+-
+-# Custom for Visual Studio
+-*.cs     diff=csharp
+-*.sln    merge=union
+-*.csproj merge=union
+-*.vbproj merge=union
+-*.fsproj merge=union
+-*.dbproj merge=union
+-
+-# Standard to msysgit
+-*.doc	 diff=astextplain
+-*.DOC	 diff=astextplain
+-*.docx diff=astextplain
+-*.DOCX diff=astextplain
+-*.dot  diff=astextplain
+-*.DOT  diff=astextplain
+-*.pdf  diff=astextplain
+-*.PDF	 diff=astextplain
+-*.rtf	 diff=astextplain
+-*.RTF	 diff=astextplain
+diff --git a/.gitignore b/.gitignore
+deleted file mode 100644
+index 6dae747..0000000
+--- a/.gitignore
++++ /dev/null
+@@ -1,36 +0,0 @@
+-# Windows image file caches
+-Thumbs.db
+-ehthumbs.db
+-
+-# Folder config file
+-Desktop.ini
+-
+-# Recycle Bin used on file shares
+-$RECYCLE.BIN/
+-
+-# Windows Installer files
+-*.cab
+-*.msi
+-*.msm
+-*.msp
+-
+-# =========================
+-# Operating System Files
+-# =========================
+-
+-# OSX
+-# =========================
+-
+-.DS_Store
+-.AppleDouble
+-.LSOverride
+-
+-# Icon must ends with two \r.
+-Icon
+-
+-# Thumbnails
+-._*
+-
+-# Files that might appear on external disk
+-.Spotlight-V100
+-.Trashes
+-- 
+1.9.4.msysgit.0
+
